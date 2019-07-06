@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{89FDBE9B-BD14-4641-9E00-634A668EDE7F}"
+	ProjectSection(SolutionItems) = preProject
+		cake.config = cake.config
+		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMemos.Api", "Api\CloudMemos.Api.csproj", "{695BD650-9105-427B-AC2C-4F6764708D9E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMemos.Logic.Tests", "Api.Tests\CloudMemos.Logic.Tests.csproj", "{349F8611-AC13-4999-B087-C4CBA69B99CD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMemos.Dtos", "CloudMemos.Dtos\CloudMemos.Dtos.csproj", "{83CD5EFD-ED07-4627-8B0B-BD5648DC9510}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CloudMemos.Logic", "CloudMemos.Logic\CloudMemos.Logic.csproj", "{F9E80BB4-9089-44D8-8A7F-974186CEED4F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{695BD650-9105-427B-AC2C-4F6764708D9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{695BD650-9105-427B-AC2C-4F6764708D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{695BD650-9105-427B-AC2C-4F6764708D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{695BD650-9105-427B-AC2C-4F6764708D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{349F8611-AC13-4999-B087-C4CBA69B99CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{349F8611-AC13-4999-B087-C4CBA69B99CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{349F8611-AC13-4999-B087-C4CBA69B99CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{349F8611-AC13-4999-B087-C4CBA69B99CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83CD5EFD-ED07-4627-8B0B-BD5648DC9510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83CD5EFD-ED07-4627-8B0B-BD5648DC9510}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83CD5EFD-ED07-4627-8B0B-BD5648DC9510}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83CD5EFD-ED07-4627-8B0B-BD5648DC9510}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9E80BB4-9089-44D8-8A7F-974186CEED4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9E80BB4-9089-44D8-8A7F-974186CEED4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9E80BB4-9089-44D8-8A7F-974186CEED4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9E80BB4-9089-44D8-8A7F-974186CEED4F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4F2E3008-DF5B-4931-BCF3-B450117715AE}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CloudMemos.Dtos\CloudMemos.Dtos.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AWSSDK.DynamoDBv2">
+      <HintPath>..\..\..\Users\ayanchuk\.nuget\packages\awssdk.dynamodbv2\3.3.17.13\lib\netstandard1.3\AWSSDK.DynamoDBv2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
