@@ -1,0 +1,265 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": "AWS::Serverless-2016-10-31",
+  "Description": "CloudMemos Deployment",
+
+  "Parameters": {
+    "Environment": {
+      "MinLength": "1",
+      "Default": "test",
+      "Type": "String",
+      "AllowedValues": [ "test", "acc", "prod" ]
+    },
+    "CustomDomainName": {
+      "Type": "String",
+      "Default": "#{CustomDomainName}"
+    },
+    "CloudMemosCertificateArn": {
+      "Type": "String",
+      "Default": "#{CloudMemosCertificateArn}"
+    }
+  },
+
+  "Resources": {
+    "CloudMemosUser": {
+      "Type": "AWS::IAM::User",
+      "Properties": {
+        "Path": "/",
+        "Policies": [
+          {
+            "PolicyName": "DynamoDB",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:*",
+                    "dynamodb:DescribeTable"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+
+  "Resources": {
+    "CloudMemosApiFunctionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": "CloudMemosApiFunctionRole",
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
+          "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+        ],
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "sts:AssumeRole"
+              ],
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CloudMemosApiFunction": {
+      "DependsOn": "CloudMemosApiFunctionRole",
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "FunctionName": "CloudMemosApiFunction",
+        "Description": "This is the lambda to provide CloudMemos API",
+        "Handler": "CloudMemos.Api::CloudMemos.Api.LambdaEntryPoint::FunctionHandlerAsync",
+        "Runtime": "dotnetcore2.1",
+        "CodeUri": "./CloudMemos.Api.zip",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": {
+          "Fn::GetAtt": [
+            "CloudMemosApiApiFunctionRole",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "ASPNETCORE_ENVIRONMENT": {
+              "Ref": "Environment"
+            },
+            "LAMBDA_NET_SERIALIZER_DEBUG": true,
+            "DOTNET_CLI_TELEMETRY_OPTOUT": 1,
+            "DOTNET_SKIP_FIRST_TIME_EXPERIENCE": 1
+          }
+        },
+        "Tracing": "Active",
+        "Tags": {
+          "Purpose": "CloudMemos API"
+        }
+      }
+    },
+    "CloudMemosApiFunctionLog": {
+      "DependsOn": "CloudMemosApiFunction",
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": {
+          "Fn::Join": [
+            "",
+            [
+              "/aws/lambda/",
+              {
+                "Ref": "CloudMemosApiFunction"
+              }
+            ]
+          ]
+        },
+        "RetentionInDays": 60
+      },
+      "Type": "AWS::Logs::LogGroup"
+    },
+    "CloudMemosRestApi": {
+      "DependsOn": "CloudMemosApiFunction",
+      "Properties": {
+        "Body": {
+          "info": {
+            "title": {
+              "Ref": "AWS::StackName"
+            },
+            "version": "1.0"
+          },
+          "paths": {
+            "/{proxy+}": {
+              "x-amazon-apigateway-any-method": {
+                "responses": {
+                },
+                "x-amazon-apigateway-integration": {
+                  "httpMethod": "POST",
+                  "type": "aws_proxy",
+                  "uri": {
+                    "Fn::Sub": [
+                      "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CloudMemosApiFunctionArn}/invocations",
+                      {
+                        "CloudMemosApiFunctionArn": {
+                          "Fn::GetAtt": [
+                            "CloudMemosApiFunction",
+                            "Arn"
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "swagger": "2.0",
+          "x-amazon-apigateway-binary-media-types": [
+            "application/octet-stream",
+            "*/*"
+          ]
+        },
+        "FailOnWarnings": true
+      },
+      "Type": "AWS::ApiGateway::RestApi"
+    },
+    "CloudMemosRestApiPermission": {
+      "DependsOn": [ "CloudMemosApiFunction", "CloudMemosRestApi" ],
+      "Properties": {
+        "Action": "lambda:invokeFunction",
+        "FunctionName": {
+          "Ref": "CloudMemosApiFunction"
+        },
+        "Principal": "apigateway.amazonaws.com",
+        "SourceArn": {
+          "Fn::Sub": [
+            "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${__ApiId__}/${__Stage__}/*/*",
+            {
+              "__ApiId__": {
+                "Ref": "CloudMemosRestApi"
+              },
+              "__Stage__": "*"
+            }
+          ]
+        }
+      },
+      "Type": "AWS::Lambda::Permission"
+    },
+    "CloudMemosRestApiProdDeployment": {
+      "Properties": {
+        "RestApiId": {
+          "Ref": "CloudMemosRestApi"
+        }
+      },
+      "Type": "AWS::ApiGateway::Deployment"
+    },
+    "CloudMemosRestApiProdStage": {
+      "Properties": {
+        "DeploymentId": {
+          "Ref": "CloudMemosRestApiProdDeployment"
+        },
+        "RestApiId": {
+          "Ref": "CloudMemosRestApi"
+        },
+        "StageName": "Prod"
+      },
+      "Type": "AWS::ApiGateway::Stage"
+    },
+    "CloudMemosApiDomainName": {
+      "Type": "AWS::ApiGateway::DomainName",
+      "Properties": {
+        "DomainName": {
+          "Ref": "CustomDomainName"
+        },
+        "EndpointConfiguration": {
+          "Types": [ "REGIONAL" ]
+        },
+        "RegionalCertificateArn": {
+          "Ref": "CloudMemosCertificateArn"
+        }
+      }
+    },
+    "CloudMemosApiBasePathMapping": {
+      "Type": "AWS::ApiGateway::BasePathMapping",
+      "Properties": {
+        "DomainName": {
+          "Ref": "CloudMemosApiDomainName"
+        },
+        "RestApiId": {
+          "Ref": "CloudMemosRestApi"
+        },
+        "Stage": {
+          "Ref": "CloudMemosRestApiProdStage"
+        }
+      }
+    },
+    "CloudMemosApiDnsRecord": {
+      "Type": "AWS::Route53::RecordSet",
+      "Properties": {
+        "HostedZoneName": {
+          "Ref": "CloudMemosDomainName"
+        },
+        "Name": {
+          "Ref": "CloudMemosApiDomainName"
+        },
+        "Type": "A",
+        "AliasTarget": {
+          "HostedZoneId": "ZLY8HYME6SFDD",
+          "DNSName": {
+            "Fn::GetAtt": [
+              "CloudMemosApiDomainName",
+              "RegionalDomainName"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
