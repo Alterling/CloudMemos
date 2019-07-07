@@ -2,24 +2,18 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "CloudMemos Deployment",
-
   "Parameters": {
     "Environment": {
       "MinLength": "1",
       "Default": "test",
       "Type": "String",
-      "AllowedValues": [ "test", "acc", "prod" ]
-    },
-    "CustomDomainName": {
-      "Type": "String",
-      "Default": "#{CustomDomainName}"
-    },
-    "CloudMemosCertificateArn": {
-      "Type": "String",
-      "Default": "#{CloudMemosCertificateArn}"
+      "AllowedValues": [
+                "test",
+                "acc",
+                "prod"
+            ]
     }
   },
-
   "Resources": {
     "CloudMemosUser": {
       "Type": "AWS::IAM::User",
@@ -45,8 +39,6 @@
         ]
       }
     },
-
-  "Resources": {
     "CloudMemosApiFunctionRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -74,19 +66,19 @@
       }
     },
     "CloudMemosApiFunction": {
-      "DependsOn": "CloudMemosApiFunctionRole",
+      "DependsOn": ["CloudMemosApiFunctionRole", "CloudMemosAccessKey"],
       "Type": "AWS::Serverless::Function",
       "Properties": {
         "FunctionName": "CloudMemosApiFunction",
         "Description": "This is the lambda to provide CloudMemos API",
         "Handler": "CloudMemos.Api::CloudMemos.Api.LambdaEntryPoint::FunctionHandlerAsync",
         "Runtime": "dotnetcore2.1",
-        "CodeUri": "./CloudMemos.Api.zip",
+        "CodeUri": "s3://lambda-deployment-3df585686b454658ab1738473d946612/CloudMemos.Api.zip",
         "MemorySize": 512,
         "Timeout": 30,
         "Role": {
           "Fn::GetAtt": [
-            "CloudMemosApiApiFunctionRole",
+            "CloudMemosApiFunctionRole",
             "Arn"
           ]
         },
@@ -138,8 +130,7 @@
           "paths": {
             "/{proxy+}": {
               "x-amazon-apigateway-any-method": {
-                "responses": {
-                },
+                "responses": {},
                 "x-amazon-apigateway-integration": {
                   "httpMethod": "POST",
                   "type": "aws_proxy",
@@ -171,7 +162,10 @@
       "Type": "AWS::ApiGateway::RestApi"
     },
     "CloudMemosRestApiPermission": {
-      "DependsOn": [ "CloudMemosApiFunction", "CloudMemosRestApi" ],
+      "DependsOn": [
+                "CloudMemosApiFunction",
+                "CloudMemosRestApi"
+      ],
       "Properties": {
         "Action": "lambda:invokeFunction",
         "FunctionName": {
@@ -211,55 +205,6 @@
         "StageName": "Prod"
       },
       "Type": "AWS::ApiGateway::Stage"
-    },
-    "CloudMemosApiDomainName": {
-      "Type": "AWS::ApiGateway::DomainName",
-      "Properties": {
-        "DomainName": {
-          "Ref": "CustomDomainName"
-        },
-        "EndpointConfiguration": {
-          "Types": [ "REGIONAL" ]
-        },
-        "RegionalCertificateArn": {
-          "Ref": "CloudMemosCertificateArn"
-        }
-      }
-    },
-    "CloudMemosApiBasePathMapping": {
-      "Type": "AWS::ApiGateway::BasePathMapping",
-      "Properties": {
-        "DomainName": {
-          "Ref": "CloudMemosApiDomainName"
-        },
-        "RestApiId": {
-          "Ref": "CloudMemosRestApi"
-        },
-        "Stage": {
-          "Ref": "CloudMemosRestApiProdStage"
-        }
-      }
-    },
-    "CloudMemosApiDnsRecord": {
-      "Type": "AWS::Route53::RecordSet",
-      "Properties": {
-        "HostedZoneName": {
-          "Ref": "CloudMemosDomainName"
-        },
-        "Name": {
-          "Ref": "CloudMemosApiDomainName"
-        },
-        "Type": "A",
-        "AliasTarget": {
-          "HostedZoneId": "ZLY8HYME6SFDD",
-          "DNSName": {
-            "Fn::GetAtt": [
-              "CloudMemosApiDomainName",
-              "RegionalDomainName"
-            ]
-          }
-        }
-      }
     }
   }
 }
