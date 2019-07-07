@@ -17,7 +17,7 @@ namespace CloudMemos.Api.Configurations
                 {
                     options.SwaggerDoc(
                         "v1",
-                        new Info { Title = "CloudMemos.Api", Description = "With proper authorization you can read and update CloudMemos.", Version = "v1" });
+                        new Info { Title = "CloudMemos.Api", Description = "Application to read and update CloudMemos.", Version = "v1" });
                     options.DescribeAllEnumsAsStrings();
                     options.DescribeStringEnumsInCamelCase();
                     options.ExampleFilters();
@@ -28,7 +28,7 @@ namespace CloudMemos.Api.Configurations
 
         internal static IApplicationBuilder UseSwaggerEndpoint(this IApplicationBuilder app)
         {
-            app.UseSwagger().UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "CloudMemos.Api"));
+            app.UseSwagger().UseSwaggerUI(options => options.SwaggerEndpoint("./v1/swagger.json", "CloudMemos.Api"));
             return app;
         }
     }

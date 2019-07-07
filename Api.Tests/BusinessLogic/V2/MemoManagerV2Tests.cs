@@ -37,7 +37,7 @@ namespace CloudMemos.Api.Tests.BusinessLogic.V2
             var id = Guid.NewGuid().ToString("N");
             memoRepository.Get(id)
                 .Returns(
-                    new TextPieceEntity { Paragraphs = new[] { "D", "B", "C", "A" }.Select(s => new TextParagraphEntity { ParagraphText = s }).ToArray() });
+                    new TextPieceEntity { Paragraphs = new[] { "D", "B", "C", "A" }.Select(s => new TextParagraphEntity { ParagraphText = s }).ToList() });
             var newIdGenerator = Substitute.For<INewIdGenerator>();
             var textStatisticsCalculator = Substitute.For<ITextStatisticsCalculator>();
             var target = new MemoManagerV2(memoRepository, newIdGenerator, textStatisticsCalculator);
@@ -62,7 +62,7 @@ namespace CloudMemos.Api.Tests.BusinessLogic.V2
             var id = Guid.NewGuid().ToString("N");
             memoRepository.Get(id)
                 .Returns(
-                    new TextPieceEntity { Paragraphs = new[] { "D", "B", "C", "A" }.Select(s => new TextParagraphEntity { ParagraphText = s }).ToArray() });
+                    new TextPieceEntity { Paragraphs = new[] { "D", "B", "C", "A" }.Select(s => new TextParagraphEntity { ParagraphText = s }).ToList() });
             var newIdGenerator = Substitute.For<INewIdGenerator>();
             var textStatisticsCalculator = Substitute.For<ITextStatisticsCalculator>();
             var target = new MemoManagerV2(memoRepository, newIdGenerator, textStatisticsCalculator);
@@ -87,7 +87,7 @@ namespace CloudMemos.Api.Tests.BusinessLogic.V2
             var id = Guid.NewGuid().ToString("N");
             memoRepository.Get(id)
                 .Returns(
-                    new TextPieceEntity { Paragraphs = new[] { "D", "B", "C", "A" }.Select(s => new TextParagraphEntity { ParagraphText = s }).ToArray() });
+                    new TextPieceEntity { Paragraphs = new[] { "D", "B", "C", "A" }.Select(s => new TextParagraphEntity { ParagraphText = s }).ToList() });
             var newIdGenerator = Substitute.For<INewIdGenerator>();
             var textStatisticsCalculator = Substitute.For<ITextStatisticsCalculator>();
             var target = new MemoManagerV2(memoRepository, newIdGenerator, textStatisticsCalculator);

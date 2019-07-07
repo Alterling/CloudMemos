@@ -1,4 +1,7 @@
 using System.Linq;
+using Amazon;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using CloudMemos.Api.Configurations;
 using CloudMemos.Api.Middlewares;
 using CloudMemos.Logic.BusinessLogic;
@@ -65,30 +68,17 @@ namespace CloudMemos.Api
         private void RegisterServices(IServiceCollection services)
         {
             services.AddSingleton(_configuration);
-            //services.AddSingleton<IMemoRepository, MemoRepository>();
-            services.AddSingleton<IMemoRepository, LocalStaticMemoRepository>();
+            services.AddSingleton<IAmazonDynamoDB>(
+                provider => new AmazonDynamoDBClient(
+                    System.Environment.GetEnvironmentVariable("AWSAccessKey"),
+                    System.Environment.GetEnvironmentVariable("AWSSecretKey"),
+                    new AmazonDynamoDBConfig { ServiceURL = "https://dynamodb.eu-west-1.amazonaws.com" }));
+            services.AddSingleton<IMemoRepository, MemoRepository>();
+            //services.AddSingleton<IMemoRepository, LocalStaticMemoRepository>();
             services.AddSingleton<INewIdGenerator, NewIdGenerator>();
             services.AddSingleton<ITextStatisticsCalculator, TextStatisticsCalculator>();
             services.AddSingleton<IMemoManagerV1, MemoManagerV1>();
             services.AddSingleton<IMemoManagerV2, MemoManagerV2>();
-            //services.AddSingleton<ITokenProvider>(
-            //    provider =>
-            //    {
-            //        var configuration = provider.GetService<IConfiguration>();
-            //        var authSection = configuration.GetSection("Authentication");
-            //        string endpoint = authSection.GetValue<string>("TokenEndpointUrl");
-            //        string clientId = authSection.GetValue<string>("AuthenticationApiClientId");
-            //        string clientSecret = authSection.GetValue<string>("AuthenticationApiClientSecret");
-            //        string scope = authSection.GetValue<string>("AuthenticationApiClientScope");
-            //        var loggingConfig = new HttpClientLoggingConfiguration(
-            //            HttpClientLoggingConfiguration.DefaultAllowedHeaders,
-            //            msg => true,
-            //            msg => false,
-            //            msg => true,
-            //            msg => false);
-
-            //        return new TokenProvider(endpoint, clientId, clientSecret, scope, loggingConfig);
-            //    });
         }
     }
 }

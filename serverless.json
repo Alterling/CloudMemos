@@ -39,6 +39,44 @@
         ]
       }
     },
+    "CloudMemosAccessKey": {
+      "Type": "AWS::IAM::AccessKey",
+      "DependsOn": [
+        "CloudMemosUser"
+      ],
+      "Properties": {
+        "UserName": { "Ref": "CloudMemosUser" },
+        "Serial": 1
+      }
+    },
+    "CloudMemosDynamoDbTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "TableName": "TextPieces",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Id",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "Id",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "5",
+          "WriteCapacityUnits": "5"
+        },
+        "Tags": [
+          {
+            "Key": "Purpose",
+            "Value": "CloudMemos"
+          }
+        ]
+      }
+    },
     "CloudMemosApiFunctionRole": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -86,6 +124,12 @@
           "Variables": {
             "ASPNETCORE_ENVIRONMENT": {
               "Ref": "Environment"
+            },
+            "AWSSecretKey": {
+              "Fn::GetAtt": [ "CloudMemosAccessKey", "SecretAccessKey" ]
+            },
+            "AWSAccessKey": {
+              "Ref": "CloudMemosAccessKey"
             },
             "LAMBDA_NET_SERIALIZER_DEBUG": true,
             "DOTNET_CLI_TELEMETRY_OPTOUT": 1,

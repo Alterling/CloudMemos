@@ -31,7 +31,7 @@ namespace CloudMemos.Logic.BusinessLogic
             var id = _newIdGenerator.Generate();
             var paragraphs = request.TextFragment.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(s => new TextParagraphEntity { ParagraphText = s })
-                .ToArray();
+                .ToList();
             var textStatistics = _textStatisticsCalculator.CalculateStatistics(paragraphs);
             var entity = new TextPieceEntity
             {

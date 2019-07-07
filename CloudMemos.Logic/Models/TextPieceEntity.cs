@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Amazon.DynamoDBv2.DataModel;
 
 namespace CloudMemos.Logic.Models
@@ -9,7 +10,7 @@ namespace CloudMemos.Logic.Models
         [DynamoDBHashKey]
         public string Id { get; set; }
 
-        public TextParagraphEntity[] Paragraphs { get; set; }
+        public List<TextParagraphEntity> Paragraphs { get; set; }
 
         public TextStatistics Statistics { get; set; }
 

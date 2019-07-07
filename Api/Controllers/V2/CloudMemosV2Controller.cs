@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CloudMemos.Dtos.V2;
 using CloudMemos.Logic.BusinessLogic;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace CloudMemos.Api.Controllers.V2
 {
@@ -15,11 +16,13 @@ namespace CloudMemos.Api.Controllers.V2
     {
         private readonly IMemoManagerV2 _entityManager;
         private readonly INewIdGenerator _newIdGenerator;
+        private readonly ILogger<CloudMemosV2Controller> _logger;
 
-        public CloudMemosV2Controller(IMemoManagerV2 entityManager, INewIdGenerator newIdGenerator)
+        public CloudMemosV2Controller(IMemoManagerV2 entityManager, INewIdGenerator newIdGenerator, ILogger<CloudMemosV2Controller> logger)
         {
             _entityManager = entityManager;
             _newIdGenerator = newIdGenerator;
+            _logger = logger;
         }
 
         [HttpGet("{id}")]
@@ -41,7 +44,9 @@ namespace CloudMemos.Api.Controllers.V2
             catch (Exception exception)
             {
                 var errorId = _newIdGenerator.Generate();
-                return StatusCode(500, $"Failed to process request. Error code {errorId}");
+                var message = $"Failed to process request. Error code {errorId}";
+                _logger.LogError(exception, message);
+                return StatusCode(500, message);
             }
         }
 
@@ -64,7 +69,9 @@ namespace CloudMemos.Api.Controllers.V2
             catch (Exception exception)
             {
                 var errorId = _newIdGenerator.Generate();
-                return StatusCode(500, $"Failed to process request. Error code {errorId}");
+                var message = $"Failed to process request. Error code {errorId}";
+                _logger.LogError(exception, message);
+                return StatusCode(500, message);
             }
         }
 
@@ -87,7 +94,9 @@ namespace CloudMemos.Api.Controllers.V2
             catch (Exception exception)
             {
                 var errorId = _newIdGenerator.Generate();
-                return StatusCode(500, $"Failed to process request. Error code {errorId}");
+                var message = $"Failed to process request. Error code {errorId}";
+                _logger.LogError(exception, message);
+                return StatusCode(500, message);
             }
         }
 
@@ -107,7 +116,9 @@ namespace CloudMemos.Api.Controllers.V2
                 return StatusCode(500, exception.ToString());
 #else
                 var errorId = _newIdGenerator.Generate();
-                return StatusCode(500, $"Failed to process request. Error code {errorId}");
+                var message = $"Failed to process request. Error code {errorId}";
+                _logger.LogError(exception, message);
+                return StatusCode(500, message);
 #endif
             }
         }

@@ -43,7 +43,7 @@ namespace CloudMemos.Logic.BusinessLogic
             }
 
             var paragraphs = DoSort(sort, entity.Paragraphs.Select(s => s.ParagraphText).ToArray());
-            entity.Paragraphs = paragraphs.Select(s => new TextParagraphEntity { ParagraphText = s }).ToArray();
+            entity.Paragraphs = paragraphs.Select(s => new TextParagraphEntity { ParagraphText = s }).ToList();
             await _repository.SaveAsync(entity);
 
             var response = EntityMapper.ToV2Response(entity);
@@ -78,7 +78,7 @@ namespace CloudMemos.Logic.BusinessLogic
             var id = _newIdGenerator.Generate();
             var textParagraphs = request.Paraagraphs.Select(s => s.ParagraphText).ToArray();
             textParagraphs = DoSort(request.Sort, textParagraphs).ToArray();
-            var paragraphs = textParagraphs.Select(s => new TextParagraphEntity { ParagraphText = s }).ToArray();
+            var paragraphs = textParagraphs.Select(s => new TextParagraphEntity { ParagraphText = s }).ToList();
             var textStatistics = _textStatisticsCalculator.CalculateStatistics(paragraphs);
             var entity = new TextPieceEntity
             {
